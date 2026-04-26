@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OBITOWRKS</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --black: #080808;
+    --dark: #0f0f0f;
+    --card: #131313;
+    --border: #222;
+    --red: #e8000d;
+    --red2: #ff1a24;
+    --orange: #ff6a00;
+    --white: #f0f0f0;
+    --gray: #888;
+    --light: #ccc;
+    --gold: #f0c040;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Exo 2', sans-serif;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--red); }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 999; opacity: 0.5;
+  }
+
+  .speed-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .speed-line {
+    position: absolute; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(232,0,13,0.15), transparent);
+    animation: speedLine 3s linear infinite;
+  }
+  @keyframes speedLine {
+    0% { transform: translateX(-100%) scaleX(0.5); opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateX(100vw) scaleX(2); opacity: 0; }
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px; height: 64px;
+    background: rgba(8,8,8,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(232,0,13,0.3);
+  }
+  .nav-logo {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900; font-size: 1.2rem;
+    letter-spacing: 4px; color: var(--white);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--red); }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600; font-size: 0.85rem;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gray); text-decoration: none;
+    transition: color 0.2s; position: relative;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+    height: 1px; background: var(--red);
+    transform: scaleX(0); transition: transform 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .nav-cta {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase;
+    padding: 8px 20px; border: 1px solid var(--red);
+    color: var(--red); text-decoration: none;
+    transition: all 0.2s; clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .nav-cta:hover { background: var(--red); color: var(--white); }
+
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+  .hamburger span { display: block; width: 24px; height: 2px; background: var(--white); transition: all 0.3s; }
+  .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+  .mobile-menu {
+    display: none; position: fixed; top: 64px; left: 0; right: 0; z-index: 99;
+    background: rgba(8,8,8,0.98); border-bottom: 1px solid var(--border);
+    padding: 24px 40px; flex-direction: column; gap: 24px;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    font-family: 'Rajdhani', sans-serif; font-weight: 600;
+    font-size: 1rem; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gray); text-decoration: none; transition: color 0.2s;
+  }
+  .mobile-menu a:hover { color: var(--red); }
+
+  /* HERO */
+  #home {
+    min-height: 100vh; display: flex; align-items: center;
+    position: relative; padding: 120px 40px 80px;
+    overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(232,0,13,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,0,13,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 800px; }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Rajdhani', sans-serif; font-size: 0.75rem;
+    letter-spacing: 4px; text-transform: uppercase; color: var(--red);
+    border: 1px solid rgba(232,0,13,0.3); padding: 6px 16px;
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-tag::before { content: '◆'; font-size: 0.6rem; }
+  .hero-title {
+    font-family: 'Orbitron', monospace; font-weight: 900;
+    font-size: clamp(3rem, 10vw, 7rem);
+    line-height: 0.9; letter-spacing: -2px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero-title .line2 { color: var(--red); display: block; }
+  .hero-sub {
+    font-family: 'Rajdhani', sans-serif; font-size: 1.1rem;
+    color: var(--gray); letter-spacing: 2px; margin-top: 24px;
+    max-width: 500px; line-height: 1.6;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-actions {
+    display: flex; gap: 16px; margin-top: 40px; flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .btn-primary {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 0.85rem; letter-spacing: 3px; text-transform: uppercase;
+    padding: 14px 32px; background: var(--red); color: var(--white);
+    text-decoration: none; border: none; cursor: pointer;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    transition: all 0.2s; position: relative; overflow: hidden;
+  }
+  .btn-primary::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transform: translateX(-100%); transition: transform 0.4s;
+  }
+  .btn-primary:hover::before { transform: translateX(100%); }
+  .btn-primary:hover { background: var(--red2); transform: translateY(-2px); }
+  .btn-secondary {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 0.85rem; letter-spacing: 3px; text-transform: uppercase;
+    padding: 14px 32px; background: transparent;
+    color: var(--white); text-decoration: none;
+    border: 1px solid var(--border); cursor: pointer;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--red); color: var(--red); }
+
+  .hero-stats {
+    display: flex; gap: 48px; margin-top: 64px;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+  .stat-num {
+    font-family: 'Orbitron', monospace; font-weight: 900;
+    font-size: 2rem; color: var(--red);
+  }
+  .stat-label {
+    font-family: 'Rajdhani', sans-serif; font-size: 0.75rem;
+    letter-spacing: 3px; text-transform: uppercase; color: var(--gray);
+    margin-top: 4px;
+  }
+
+  .hero-accent {
+    position: absolute; right: -100px; top: 50%; transform: translateY(-50%);
+    width: 500px; height: 500px; z-index: 0;
+    background: radial-gradient(ellipse, rgba(232,0,13,0.12) 0%, transparent 70%);
+    animation: pulse 4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.5;transform:translateY(-50%) scale(1)} 50%{opacity:1;transform:translateY(-50%) scale(1.1)} }
+
+  /* SECTION BASE */
+  section { position: relative; z-index: 1; }
+  .section-inner { max-width: 1100px; margin: 0 auto; padding: 100px 40px; }
+  .section-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Rajdhani', sans-serif; font-size: 0.7rem;
+    letter-spacing: 5px; text-transform: uppercase; color: var(--red);
+    margin-bottom: 16px;
+  }
+  .section-tag::before { content: ''; display: inline-block; width: 24px; height: 1px; background: var(--red); }
+  .section-title {
+    font-family: 'Orbitron', monospace; font-weight: 900;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    line-height: 1.1; margin-bottom: 48px;
+  }
+  .section-title span { color: var(--red); }
+
+  /* SHOP */
+  #shop { background: var(--dark); }
+  #shop::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+  }
+  .shop-tabs { display: flex; gap: 4px; margin-bottom: 40px; flex-wrap: wrap; }
+  .tab-btn {
+    font-family: 'Rajdhani', sans-serif; font-weight: 600;
+    font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase;
+    padding: 10px 24px; background: transparent;
+    color: var(--gray); border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.2s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .tab-btn.active, .tab-btn:hover { background: var(--red); color: var(--white); border-color: var(--red); }
+
+  .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .product-card {
+    background: var(--card); border: 1px solid var(--border);
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .product-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--red), var(--orange));
+    transform: scaleX(0); transform-origin: left; transition: transform 0.3s;
+  }
+  .product-card:hover { border-color: rgba(232,0,13,0.4); transform: translateY(-4px); }
+  .product-card:hover::before { transform: scaleX(1); }
+  .product-img {
+    width: 100%; height: 160px;
+    background: linear-gradient(135deg, #1a0000, #0f0f0f);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3rem; border-bottom: 1px solid var(--border);
+  }
+  .product-body { padding: 20px; }
+  .product-badge {
+    display: inline-block; font-family: 'Rajdhani', sans-serif;
+    font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
+    padding: 3px 10px; background: rgba(232,0,13,0.15);
+    color: var(--red); border: 1px solid rgba(232,0,13,0.3); margin-bottom: 10px;
+  }
+  .product-name { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.1rem; letter-spacing: 1px; margin-bottom: 8px; }
+  .product-desc { font-size: 0.82rem; color: var(--gray); line-height: 1.5; margin-bottom: 16px; }
+  .product-footer { display: flex; align-items: center; justify-content: space-between; }
+  .product-price { font-family: 'Orbitron', monospace; font-weight: 700; font-size: 1.2rem; color: var(--red); }
+  .product-price small { font-size: 0.7rem; color: var(--gray); font-family: 'Exo 2'; margin-left: 4px; }
+  .buy-btn {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase;
+    padding: 8px 18px; background: transparent;
+    color: var(--red); border: 1px solid var(--red); cursor: pointer;
+    transition: all 0.2s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+  .buy-btn:hover { background: var(--red); color: var(--white); }
+
+  /* SERVICES */
+  #services { background: var(--black); }
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+  .service-card {
+    border: 1px solid var(--border); padding: 32px;
+    position: relative; transition: all 0.3s; background: var(--card);
+  }
+  .service-card::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--red), var(--orange));
+    transform: scaleX(0); transform-origin: left; transition: transform 0.4s;
+  }
+  .service-card:hover { border-color: rgba(232,0,13,0.3); transform: translateY(-4px); }
+  .service-card:hover::after { transform: scaleX(1); }
+  .service-icon { font-size: 2.5rem; margin-bottom: 20px; display: block; filter: drop-shadow(0 0 12px rgba(232,0,13,0.4)); }
+  .service-name { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .service-desc { font-size: 0.85rem; color: var(--gray); line-height: 1.7; margin-bottom: 20px; }
+  .service-price { font-family: 'Orbitron', monospace; font-size: 0.9rem; color: var(--red); letter-spacing: 1px; }
+
+  /* ─── GIVEAWAY SECTION ─── */
+  #giveaway { background: var(--dark); }
+  #giveaway::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  /* No active giveaway state */
+  .giveaway-empty {
+    text-align: center; padding: 80px 40px;
+    border: 1px dashed rgba(240,192,64,0.25);
+    background: rgba(240,192,64,0.03);
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+  }
+  .giveaway-empty-icon { font-size: 4rem; margin-bottom: 20px; display: block; filter: grayscale(0.5); }
+  .giveaway-empty-title {
+    font-family: 'Orbitron', monospace; font-weight: 700;
+    font-size: 1.4rem; color: var(--gray); margin-bottom: 12px;
+  }
+  .giveaway-empty-sub { color: var(--gray); font-size: 0.9rem; letter-spacing: 1px; }
+
+  /* Active giveaway card */
+  .giveaway-card {
+    display: none;
+    border: 1px solid rgba(240,192,64,0.3);
+    background: linear-gradient(135deg, rgba(240,192,64,0.05), rgba(232,0,13,0.05));
+    clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+    padding: 40px; position: relative; overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .giveaway-card.active { display: block; }
+  .giveaway-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--red), var(--gold));
+    animation: shimmer 3s linear infinite;
+  }
+  @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
+
+  .giveaway-live-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'Rajdhani', sans-serif; font-size: 0.7rem;
+    letter-spacing: 4px; text-transform: uppercase;
+    color: var(--gold); border: 1px solid rgba(240,192,64,0.4);
+    padding: 5px 14px; margin-bottom: 20px;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .giveaway-live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--gold); animation: blink 1s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  .giveaway-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+  .giveaway-info-title {
+    font-family: 'Orbitron', monospace; font-weight: 900;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: var(--white); margin-bottom: 12px;
+  }
+  .giveaway-info-title span { color: var(--gold); }
+  .giveaway-info-desc { font-size: 0.9rem; color: var(--gray); line-height: 1.7; margin-bottom: 24px; }
+
+  .giveaway-prize {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(240,192,64,0.08); border: 1px solid rgba(240,192,64,0.2);
+    padding: 16px 20px; margin-bottom: 20px;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .giveaway-prize-icon { font-size: 1.8rem; }
+  .giveaway-prize-label { font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+  .giveaway-prize-value { font-family: 'Orbitron', monospace; font-weight: 700; font-size: 1.1rem; color: var(--white); margin-top: 2px; }
+
+  .giveaway-meta { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 0; }
+  .giveaway-meta-item { }
+  .giveaway-meta-label { font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gray); }
+  .giveaway-meta-val { font-family: 'Orbitron', monospace; font-size: 1rem; color: var(--red); margin-top: 4px; }
+
+  /* Entry form */
+  .giveaway-form-title {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 0.75rem; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 20px;
+    border-bottom: 1px solid rgba(240,192,64,0.15); padding-bottom: 12px;
+  }
+  .giveaway-entry-success {
+    display: none; text-align: center; padding: 32px 20px;
+    border: 1px solid rgba(240,192,64,0.3);
+    background: rgba(240,192,64,0.05);
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .giveaway-entry-success.show { display: block; }
+  .giveaway-entry-success-icon { font-size: 3rem; margin-bottom: 12px; }
+  .giveaway-entry-success h3 { font-family: 'Orbitron', monospace; font-size: 1.1rem; color: var(--gold); margin-bottom: 8px; }
+  .giveaway-entry-success p { font-size: 0.85rem; color: var(--gray); }
+
+  /* Countdown */
+  .giveaway-countdown {
+    display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;
+  }
+  .countdown-block {
+    text-align: center; background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(240,192,64,0.2);
+    padding: 12px 16px; min-width: 64px;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+  .countdown-num { font-family: 'Orbitron', monospace; font-size: 1.4rem; font-weight: 700; color: var(--gold); }
+  .countdown-lbl { font-family: 'Rajdhani', sans-serif; font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); margin-top: 4px; }
+
+  /* Entry count */
+  .giveaway-entry-count {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; letter-spacing: 2px;
+    color: var(--gray); margin-top: 16px;
+  }
+  .entry-count-num { color: var(--red); font-family: 'Orbitron', monospace; font-weight: 700; font-size: 1rem; }
+
+  /* REVIEWS */
+  #reviews { background: var(--dark); }
+  #reviews::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+  }
+  .reviews-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .review-card {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 28px; position: relative; transition: border-color 0.3s;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+  }
+  .review-card:hover { border-color: rgba(232,0,13,0.3); }
+  .review-stars { color: var(--red); font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 16px; }
+  .review-text { font-size: 0.88rem; color: var(--light); line-height: 1.7; margin-bottom: 20px; font-style: italic; }
+  .review-author { display: flex; align-items: center; gap: 12px; }
+  .review-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--red), var(--orange));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', monospace; font-size: 0.75rem; font-weight: 700;
+  }
+  .review-name { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; }
+  .review-game { font-size: 0.75rem; color: var(--gray); }
+
+  .scammer-bar {
+    background: rgba(232,0,13,0.08); border: 1px solid rgba(232,0,13,0.2);
+    padding: 20px 32px; margin-top: 48px; display: flex;
+    align-items: center; gap: 16px;
+    clip-path: polygon(16px 0%, 100% 0%, calc(100% - 16px) 100%, 0% 100%);
+  }
+  .scammer-bar-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .scammer-bar-text { font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; color: var(--light); letter-spacing: 1px; }
+  .scammer-bar-text strong { color: var(--red); }
+
+  /* CONTACT */
+  #contact { background: var(--black); }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+  .contact-info p { font-size: 0.9rem; color: var(--gray); line-height: 1.8; margin-bottom: 32px; }
+  .contact-links { display: flex; flex-direction: column; gap: 12px; }
+  .contact-link {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 20px; border: 1px solid var(--border);
+    text-decoration: none; color: var(--white);
+    transition: all 0.2s; background: var(--card);
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+  }
+  .contact-link:hover { border-color: var(--red); background: rgba(232,0,13,0.05); }
+  .contact-link-icon { font-size: 1.4rem; }
+  .contact-link-platform { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; color: var(--red); }
+  .contact-link-handle { font-size: 0.9rem; color: var(--light); margin-top: 2px; }
+
+  .form-group { margin-bottom: 20px; }
+  .form-label { display: block; font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gray); margin-bottom: 8px; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; background: var(--card); border: 1px solid var(--border);
+    color: var(--white); font-family: 'Exo 2', sans-serif; font-size: 0.9rem;
+    padding: 12px 16px; outline: none; transition: border-color 0.2s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--red); }
+  .form-textarea { resize: vertical; min-height: 120px; }
+  .form-select option { background: var(--card); }
+  .form-submit {
+    width: 100%; font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 0.9rem; letter-spacing: 4px; text-transform: uppercase;
+    padding: 16px; background: var(--red); color: var(--white);
+    border: none; cursor: pointer; transition: all 0.2s;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    position: relative; overflow: hidden;
+  }
+  .form-submit::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: translateX(-100%); transition: transform 0.4s;
+  }
+  .form-submit:hover::before { transform: translateX(100%); }
+  .form-submit:hover { background: var(--red2); }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px; text-align: center;
+    position: relative; z-index: 1;
+  }
+  .footer-logo { font-family: 'Orbitron', monospace; font-weight: 900; font-size: 1.5rem; letter-spacing: 6px; margin-bottom: 16px; }
+  .footer-logo span { color: var(--red); }
+  .footer-links { display: flex; justify-content: center; gap: 32px; margin-bottom: 24px; flex-wrap: wrap; }
+  .footer-links a { font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gray); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--red); }
+  .footer-copy { font-size: 0.78rem; color: var(--gray); }
+  .footer-copy span { color: var(--red); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card); border: 1px solid var(--red);
+    max-width: 480px; width: 100%; padding: 40px;
+    clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+    animation: fadeUp 0.3s ease; position: relative;
+  }
+  .modal-title { font-family: 'Orbitron', monospace; font-weight: 900; font-size: 1.4rem; margin-bottom: 8px; }
+  .modal-sub { font-size: 0.85rem; color: var(--gray); margin-bottom: 28px; }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--gray); font-size: 1.2rem; cursor: pointer; padding: 4px 8px; }
+  .modal-close:hover { color: var(--red); }
+  .modal-btns { display: flex; flex-direction: column; gap: 12px; }
+  .modal-btn {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 20px; border: 1px solid var(--border);
+    background: var(--dark); color: var(--white);
+    text-decoration: none; font-family: 'Rajdhani', sans-serif;
+    font-weight: 600; font-size: 0.9rem; letter-spacing: 2px;
+    text-transform: uppercase; transition: all 0.2s; cursor: pointer;
+  }
+  .modal-btn:hover { border-color: var(--red); background: rgba(232,0,13,0.08); }
+  .modal-btn-icon { font-size: 1.4rem; }
+
+  /* ─── ADMIN PANEL ─── */
+  #adminPanel {
+    display: none; position: fixed; inset: 0; z-index: 800;
+    background: rgba(0,0,0,0.95); backdrop-filter: blur(8px);
+    overflow-y: auto; padding: 40px 20px;
+  }
+  #adminPanel.open { display: block; }
+  .admin-inner { max-width: 800px; margin: 0 auto; }
+  .admin-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 40px; padding-bottom: 20px;
+    border-bottom: 1px solid rgba(232,0,13,0.3);
+  }
+  .admin-title {
+    font-family: 'Orbitron', monospace; font-weight: 900;
+    font-size: 1.4rem; color: var(--red); letter-spacing: 3px;
+  }
+  .admin-close-btn {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase;
+    padding: 10px 24px; background: transparent;
+    color: var(--gray); border: 1px solid var(--border); cursor: pointer;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: all 0.2s;
+  }
+  .admin-close-btn:hover { border-color: var(--red); color: var(--red); }
+
+  .admin-section-title {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 0.75rem; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--red); margin-bottom: 20px;
+    border-bottom: 1px solid rgba(232,0,13,0.15); padding-bottom: 12px;
+  }
+  .admin-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .admin-form-grid .full { grid-column: 1 / -1; }
+  .admin-input {
+    width: 100%; background: #0d0d0d; border: 1px solid var(--border);
+    color: var(--white); font-family: 'Exo 2', sans-serif; font-size: 0.9rem;
+    padding: 12px 16px; outline: none; transition: border-color 0.2s;
+  }
+  .admin-input:focus { border-color: var(--red); }
+  .admin-textarea { resize: vertical; min-height: 80px; }
+  .admin-label { display: block; font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gray); margin-bottom: 6px; }
+  .admin-btn {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 0.85rem; letter-spacing: 3px; text-transform: uppercase;
+    padding: 14px 28px; border: none; cursor: pointer;
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+    transition: all 0.2s;
+  }
+  .admin-btn-primary { background: var(--red); color: var(--white); }
+  .admin-btn-primary:hover { background: var(--red2); }
+  .admin-btn-danger { background: transparent; border: 1px solid #444; color: var(--gray); }
+  .admin-btn-danger:hover { border-color: var(--red); color: var(--red); }
+  .admin-btn-gold { background: var(--gold); color: #000; }
+  .admin-btn-gold:hover { background: #ffd060; }
+
+  .admin-entries-table {
+    width: 100%; border-collapse: collapse; margin-top: 8px;
+  }
+  .admin-entries-table th {
+    font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--gray);
+    border-bottom: 1px solid var(--border); padding: 10px 12px; text-align: left;
+  }
+  .admin-entries-table td {
+    font-size: 0.85rem; color: var(--light); padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .admin-entries-table tr:hover td { background: rgba(232,0,13,0.04); }
+  .winner-row td { color: var(--gold) !important; background: rgba(240,192,64,0.06) !important; }
+
+  .admin-empty { text-align: center; padding: 40px; color: var(--gray); font-family: 'Rajdhani', sans-serif; letter-spacing: 2px; font-size: 0.85rem; }
+  .admin-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+
+  .admin-status-bar {
+    background: rgba(232,0,13,0.08); border: 1px solid rgba(232,0,13,0.2);
+    padding: 14px 20px; margin-bottom: 32px; font-family: 'Rajdhani', sans-serif;
+    font-size: 0.85rem; letter-spacing: 1px; color: var(--light);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .admin-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+  .admin-status-dot.green { background: #00e676; }
+
+  /* LOGIN PANEL */
+  .admin-login-wrap {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 40px;
+  }
+  .admin-login-box {
+    background: var(--card); border: 1px solid var(--red);
+    padding: 48px 40px; max-width: 400px; width: 100%;
+    clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+    text-align: center;
+  }
+  .admin-login-logo { font-family: 'Orbitron', monospace; font-weight: 900; font-size: 1.5rem; color: var(--red); letter-spacing: 4px; margin-bottom: 8px; }
+  .admin-login-sub { font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gray); margin-bottom: 32px; }
+  .admin-login-err { color: var(--red); font-size: 0.8rem; font-family: 'Rajdhani', sans-serif; letter-spacing: 2px; margin-bottom: 12px; min-height: 20px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 32px; right: 32px; z-index: 900;
+    background: var(--card); border: 1px solid var(--red);
+    padding: 16px 24px; font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem; letter-spacing: 1px; color: var(--white);
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transform: translateY(100px); opacity: 0;
+    transition: all 0.3s; pointer-events: none; max-width: 340px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.gold { border-color: var(--gold); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal { opacity: 0; transform: translateY(32px); transition: all 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .nav-links, .nav-cta { display: none; }
+    .hamburger { display: flex; }
+    #home { padding: 100px 20px 60px; }
+    .hero-stats { gap: 24px; flex-wrap: wrap; }
+    .section-inner { padding: 72px 20px; }
+    .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+    footer { padding: 32px 20px; }
+    .toast { right: 16px; bottom: 16px; left: 16px; }
+    .giveaway-layout { grid-template-columns: 1fr; gap: 32px; }
+    .admin-form-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Speed Lines -->
+<div class="speed-bg" id="speedBg"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#home" class="nav-logo">OBIT<span>O</span>WRKS</a>
+  <ul class="nav-links">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#shop">Shop</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#giveaway">Giveaway</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Order Now</a>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#home" onclick="closeMenu()">Home</a>
+  <a href="#shop" onclick="closeMenu()">Shop</a>
+  <a href="#services" onclick="closeMenu()">Services</a>
+  <a href="#giveaway" onclick="closeMenu()">Giveaway</a>
+  <a href="#reviews" onclick="closeMenu()">Reviews</a>
+  <a href="#contact" onclick="closeMenu()">Contact</a>
+</div>
+
+<!-- HERO -->
+<section id="home">
+  <div class="hero-grid"></div>
+  <div class="hero-accent"></div>
+  <div class="hero-content">
+    <div class="hero-tag">Car Parking Multiplayer · Game Services</div>
+    <h1 class="hero-title">
+      OBIT<span class="line2">OWRKS</span>
+    </h1>
+    <p class="hero-sub">Premium game accounts, custom liveries & boosting services. Built for real players, delivered fast.</p>
+    <div class="hero-actions">
+      <a href="#shop" class="btn-primary">Browse Shop</a>
+      <a href="#giveaway" class="btn-secondary">🎁 Giveaway</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">200+</div>
+        <div class="stat-label">Sales Made</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Legit Verified</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">24H</div>
+        <div class="stat-label">Fast Delivery</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHOP -->
+<section id="shop">
+  <div class="section-inner">
+    <div class="section-tag">Shop</div>
+    <h2 class="section-title reveal">Browse <span>Products</span></h2>
+    <div class="shop-tabs">
+      <button class="tab-btn active" onclick="filterShop('all', this)">All</button>
+      <button class="tab-btn" onclick="filterShop('cpm', this)">CPM Accounts</button>
+      <button class="tab-btn" onclick="filterShop('livery', this)">Liveries</button>
+      <button class="tab-btn" onclick="filterShop('boost', this)">Boosting</button>
+    </div>
+    <div class="shop-grid" id="shopGrid">
+      <div class="product-card reveal" data-cat="cpm">
+        <div class="product-img">🏎️</div>
+        <div class="product-body">
+          <span class="product-badge">CPM Account</span>
+          <div class="product-name">Starter Account</div>
+          <div class="product-desc">Decent level account with starter cars. Perfect to jump in and play. Fast delivery.</div>
+          <div class="product-footer">
+            <div class="product-price">DM <small>for price</small></div>
+            <button class="buy-btn" onclick="openBuyModal('Starter CPM Account')">Buy →</button>
+          </div>
+        </div>
+      </div>
+      <div class="product-card reveal" data-cat="cpm">
+        <div class="product-img">🚗</div>
+        <div class="product-body">
+          <span class="product-badge">CPM Account</span>
+          <div class="product-name">Mid-Tier Account</div>
+          <div class="product-desc">Higher level, solid car collection, good garage. Already grinded so you don't have to.</div>
+          <div class="product-footer">
+            <div class="product-price">DM <small>for price</small></div>
+            <button class="buy-btn" onclick="openBuyModal('Mid-Tier CPM Account')">Buy →</button>
+          </div>
+        </div>
+      </div>
+      <div class="product-card reveal" data-cat="cpm">
+        <div class="product-img">🏆</div>
+        <div class="product-body">
+          <span class="product-badge">CPM Account</span>
+          <div class="product-name">Premium Account</div>
+          <div class="product-desc">High-level, stacked garage, rare cars. The full package for serious players.</div>
+          <div class="product-footer">
+            <div class="product-price">DM <small>for price</small></div>
+            <button class="buy-btn" onclick="openBuyModal('Premium CPM Account')">Buy →</button>
+          </div>
+        </div>
+      </div>
+      <div class="product-card reveal" data-cat="livery">
+        <div class="product-img">🎨</div>
+        <div class="product-body">
+          <span class="product-badge">Custom Livery</span>
+          <div class="product-name">Custom Car Design</div>
+          <div class="product-desc">Full custom livery designed to your specs. Send reference, get fire results.</div>
+          <div class="product-footer">
+            <div class="product-price">DM <small>for price</small></div>
+            <button class="buy-btn" onclick="openBuyModal('Custom Car Livery')">Order →</button>
+          </div>
+        </div>
+      </div>
+      <div class="product-card reveal" data-cat="boost">
+        <div class="product-img">⚡</div>
+        <div class="product-body">
+          <span class="product-badge">Boosting</span>
+          <div class="product-name">Level Boost</div>
+          <div class="product-desc">We grind your account to your target level. You sit back, we do the work.</div>
+          <div class="product-footer">
+            <div class="product-price">DM <small>for price</small></div>
+            <button class="buy-btn" onclick="openBuyModal('Account Level Boost')">Order →</button>
+          </div>
+        </div>
+      </div>
+      <div class="product-card reveal" data-cat="boost">
+        <div class="product-img">💰</div>
+        <div class="product-body">
+          <span class="product-badge">Boosting</span>
+          <div class="product-name">Currency Grind</div>
+          <div class="product-desc">Need in-game money? We farm it for you. Fast, reliable, no risk.</div>
+          <div class="product-footer">
+            <div class="product-price">DM <small>for price</small></div>
+            <button class="buy-btn" onclick="openBuyModal('Currency Grind Service')">Order →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-inner">
+    <div class="section-tag">What We Do</div>
+    <h2 class="section-title reveal">Our <span>Services</span></h2>
+    <div class="services-grid">
+      <div class="service-card reveal">
+        <span class="service-icon">🏎️</span>
+        <div class="service-name">CPM Account Sales</div>
+        <div class="service-desc">Ready-to-go Car Parking Multiplayer accounts at various levels. Starter to premium, all legit, all fast delivery.</div>
+        <div class="service-price">Price on request</div>
+      </div>
+      <div class="service-card reveal">
+        <span class="service-icon">🎨</span>
+        <div class="service-name">Custom Liveries</div>
+        <div class="service-desc">Unique car designs made to your exact vision. Send a reference or describe what you want. Racing stripes, full wraps, decals.</div>
+        <div class="service-price">Price on request</div>
+      </div>
+      <div class="service-card reveal">
+        <span class="service-icon">⚡</span>
+        <div class="service-name">Account Boosting</div>
+        <div class="service-desc">Level up your account without the grind. We log in and get the job done. XP boosting, money farming, car unlocks.</div>
+        <div class="service-price">Price on request</div>
+      </div>
+      <div class="service-card reveal">
+        <span class="service-icon">🛡️</span>
+        <div class="service-name">Scammer Protection</div>
+        <div class="service-desc">We keep a public scammer list so the community stays safe. Buy from OBITOWRKS — verified seller, real feedback, no games.</div>
+        <div class="service-price">Free · Community</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── GIVEAWAY SECTION ─── -->
+<section id="giveaway">
+  <div class="section-inner">
+    <div class="section-tag" style="color:var(--gold)">🎁 Giveaway</div>
+    <h2 class="section-title reveal">Active <span style="color:var(--gold)">Giveaway</span></h2>
+
+    <!-- EMPTY STATE (shown when no giveaway) -->
+    <div class="giveaway-empty reveal" id="giveawayEmpty">
+      <span class="giveaway-empty-icon">🎁</span>
+      <div class="giveaway-empty-title">NO ACTIVE GIVEAWAY</div>
+      <div class="giveaway-empty-sub">Check back soon — follow @w_performance1 on IG for announcements</div>
+    </div>
+
+    <!-- ACTIVE GIVEAWAY CARD (shown when admin sets one) -->
+    <div class="giveaway-card reveal" id="giveawayCard">
+      <div class="giveaway-live-badge"><div class="giveaway-live-dot"></div> Live Giveaway</div>
+
+      <div class="giveaway-layout">
+        <!-- Left: Info -->
+        <div class="giveaway-info">
+          <div class="giveaway-info-title" id="giveawayTitle">PREMIUM CPM <span>ACCOUNT</span></div>
+          <div class="giveaway-info-desc" id="giveawayDesc">Win a fully stacked CPM account. Enter below with your IG username and in-game ID. Winner gets DM'd directly by OBITOWRKS.</div>
+
+          <div class="giveaway-prize">
+            <div class="giveaway-prize-icon" id="giveawayEmoji">🏆</div>
+            <div>
+              <div class="giveaway-prize-label">Prize</div>
+              <div class="giveaway-prize-value" id="giveawayPrize">Premium CPM Account</div>
+            </div>
+          </div>
+
+          <div class="giveaway-meta">
+            <div class="giveaway-meta-item">
+              <div class="giveaway-meta-label">Ends In</div>
+              <div class="giveaway-countdown" id="giveawayCountdown">
+                <div class="countdown-block"><div class="countdown-num" id="cdDays">00</div><div class="countdown-lbl">Days</div></div>
+                <div class="countdown-block"><div class="countdown-num" id="cdHours">00</div><div class="countdown-lbl">Hours</div></div>
+                <div class="countdown-block"><div class="countdown-num" id="cdMins">00</div><div class="countdown-lbl">Mins</div></div>
+                <div class="countdown-block"><div class="countdown-num" id="cdSecs">00</div><div class="countdown-lbl">Secs</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="giveaway-entry-count">
+            👥 <span id="entryCountDisplay" class="entry-count-num">0</span> entries so far
+          </div>
+        </div>
+
+        <!-- Right: Entry Form -->
+        <div class="giveaway-form-side">
+          <div class="giveaway-form-title">◆ Enter Giveaway</div>
+
+          <div id="entryFormWrap">
+            <div class="form-group">
+              <label class="form-label" style="color:var(--gold)">Instagram Username</label>
+              <input type="text" class="form-input" id="entryIg" placeholder="@yourusername" style="border-color:rgba(240,192,64,0.25)"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="color:var(--gold)">In-Game ID / Username</label>
+              <input type="text" class="form-input" id="entryGameId" placeholder="Your in-game ID" style="border-color:rgba(240,192,64,0.25)"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="color:var(--gold)">Game / Platform (optional)</label>
+              <input type="text" class="form-input" id="entryGame" placeholder="e.g. CPM, Android/iOS" style="border-color:rgba(240,192,64,0.25)"/>
+            </div>
+            <button class="form-submit" style="background:var(--gold);color:#000;clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);" onclick="submitGiveawayEntry()">
+              Enter Giveaway 🎁
+            </button>
+          </div>
+
+          <div class="giveaway-entry-success" id="entrySuccess">
+            <div class="giveaway-entry-success-icon">✅</div>
+            <h3>You're In!</h3>
+            <p>Entry confirmed. Winner will be announced on IG & Discord. Good luck!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section id="reviews">
+  <div class="section-inner">
+    <div class="section-tag">Reviews</div>
+    <h2 class="section-title reveal">What Buyers <span>Say</span></h2>
+    <div class="reviews-grid">
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Got my account within hours. Exactly what was described, no issues. Will buy again fr."</p>
+        <div class="review-author">
+          <div class="review-avatar">JK</div>
+          <div>
+            <div class="review-name">J_King</div>
+            <div class="review-game">CPM Account · Verified Buyer</div>
+          </div>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Custom livery came out 🔥. Sent my idea and got exactly that. Fast and looks amazing in game."</p>
+        <div class="review-author">
+          <div class="review-avatar">RX</div>
+          <div>
+            <div class="review-name">RacerX</div>
+            <div class="review-game">Custom Livery · Verified Buyer</div>
+          </div>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Boosting was done quicker than expected. Legit seller, great communication throughout."</p>
+        <div class="review-author">
+          <div class="review-avatar">DZ</div>
+          <div>
+            <div class="review-name">D_Zero</div>
+            <div class="review-game">Level Boost · Verified Buyer</div>
+          </div>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Bought a mid account, was exactly as described. Smooth transaction, no stress. Recommended."</p>
+        <div class="review-author">
+          <div class="review-avatar">MV</div>
+          <div>
+            <div class="review-name">M_Vibe</div>
+            <div class="review-game">CPM Account · Verified Buyer</div>
+          </div>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Only seller I trust for CPM. Been buying from OBITOWRKS for months, never had a problem."</p>
+        <div class="review-author">
+          <div class="review-avatar">ST</div>
+          <div>
+            <div class="review-name">Street_T</div>
+            <div class="review-game">Repeat Buyer · CPM Account</div>
+          </div>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Livery design was top tier. Dude really delivered. My car looking different from everyone else now."</p>
+        <div class="review-author">
+          <div class="review-avatar">AK</div>
+          <div>
+            <div class="review-name">A_Kev</div>
+            <div class="review-game">Custom Livery · Verified Buyer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scammer-bar reveal">
+      <span class="scammer-bar-icon">⚠️</span>
+      <div class="scammer-bar-text">
+        <strong>SCAMMER ALERT:</strong> Only buy through official channels. Our Instagram is <strong>@w_performance1</strong> and Discord is <strong>OBITOWRKS</strong>. Anyone else is fake. We maintain a public scammer list — DM us to report.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="section-tag">Contact</div>
+    <h2 class="section-title reveal">Get In <span>Touch</span></h2>
+    <div class="contact-grid">
+      <div class="contact-info reveal">
+        <p>DM us on Discord or Instagram to place an order, ask about pricing, or request a custom service. We reply fast.</p>
+        <div class="contact-links">
+          <a href="https://instagram.com/w_performance1" target="_blank" class="contact-link">
+            <span class="contact-link-icon">📸</span>
+            <div class="contact-link-info">
+              <div class="contact-link-platform">Instagram</div>
+              <div class="contact-link-handle">@w_performance1</div>
+            </div>
+          </a>
+          <a href="#" class="contact-link" onclick="copyDiscord(event)">
+            <span class="contact-link-icon">🎮</span>
+            <div class="contact-link-info">
+              <div class="contact-link-platform">Discord</div>
+              <div class="contact-link-handle">OBITOWRKS — click to copy</div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="contact-form reveal">
+        <div class="form-group">
+          <label class="form-label">Your Name / Username</label>
+          <input type="text" class="form-input" placeholder="e.g. J_King" id="formName"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Service Interested In</label>
+          <select class="form-select" id="formService">
+            <option value="">Select a service...</option>
+            <option>CPM Account — Starter</option>
+            <option>CPM Account — Mid Tier</option>
+            <option>CPM Account — Premium</option>
+            <option>Custom Livery / Design</option>
+            <option>Account Level Boost</option>
+            <option>Currency Grind</option>
+            <option>Other / Custom Request</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message / Details</label>
+          <textarea class="form-textarea" placeholder="Tell us what you need, your budget, any details..." id="formMsg"></textarea>
+        </div>
+        <button class="form-submit" onclick="submitForm()">Send Enquiry →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo" ondblclick="openAdminLogin()" style="cursor:default;user-select:none;">OBIT<span>O</span>WRKS</div>
+  <div class="footer-links">
+    <a href="#home">Home</a>
+    <a href="#shop">Shop</a>
+    <a href="#services">Services</a>
+    <a href="#giveaway">Giveaway</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <div class="footer-copy">© 2026 <span>OBITOWRKS</span> · All rights reserved · Gamer. Seller. Legit.</div>
+</footer>
+
+<!-- BUY MODAL -->
+<div class="modal-overlay" id="buyModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeBuyModal()">✕</button>
+    <div class="modal-title">Ready to Buy?</div>
+    <div class="modal-sub" id="modalProductName">Contact us to order</div>
+    <div class="modal-btns">
+      <a href="https://instagram.com/w_performance1" target="_blank" class="modal-btn">
+        <span class="modal-btn-icon">📸</span>
+        <div>
+          <div style="font-size:0.65rem;letter-spacing:3px;color:var(--red)">INSTAGRAM</div>
+          <div>@w_performance1</div>
+        </div>
+      </a>
+      <button class="modal-btn" onclick="copyDiscord()">
+        <span class="modal-btn-icon">🎮</span>
+        <div>
+          <div style="font-size:0.65rem;letter-spacing:3px;color:var(--red)">DISCORD</div>
+          <div>OBITOWRKS — Click to Copy</div>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+  <!-- Login view -->
+  <div id="adminLoginView" class="admin-login-wrap">
+    <div class="admin-login-box">
+      <div class="admin-login-logo">ADMIN</div>
+      <div class="admin-login-sub">OBITOWRKS Control Panel</div>
+      <div class="admin-login-err" id="loginErr"></div>
+      <div class="form-group">
+        <input type="password" class="form-input" id="adminPwInput" placeholder="Enter password..." onkeydown="if(event.key==='Enter')checkAdminLogin()"/>
+      </div>
+      <button class="form-submit" onclick="checkAdminLogin()" style="margin-top:8px">Unlock Panel →</button>
+      <br><br>
+      <button onclick="closeAdmin()" style="background:none;border:none;color:var(--gray);font-family:'Rajdhani',sans-serif;font-size:0.8rem;letter-spacing:2px;cursor:pointer;">← Back to Site</button>
+    </div>
+  </div>
+
+  <!-- Main admin view (after login) -->
+  <div id="adminMainView" style="display:none;">
+    <div class="admin-inner">
+      <div class="admin-header">
+        <div class="admin-title">⚙ OBITOWRKS ADMIN</div>
+        <div style="display:flex;gap:12px;">
+          <button class="admin-close-btn" onclick="adminLogout()">Logout</button>
+          <button class="admin-close-btn" onclick="closeAdmin()">✕ Close</button>
+        </div>
+      </div>
+
+      <!-- Status bar -->
+      <div class="admin-status-bar" id="adminStatusBar">
+        <div class="admin-status-dot" id="adminStatusDot"></div>
+        <span id="adminStatusText">No active giveaway.</span>
+      </div>
+
+      <!-- Create / Edit Giveaway -->
+      <div style="margin-bottom:48px;">
+        <div class="admin-section-title">◆ Create / Edit Giveaway</div>
+        <div class="admin-form-grid">
+          <div>
+            <label class="admin-label">Giveaway Title</label>
+            <input type="text" class="admin-input" id="aTitle" placeholder="e.g. Premium CPM Account"/>
+          </div>
+          <div>
+            <label class="admin-label">Prize Name</label>
+            <input type="text" class="admin-input" id="aPrize" placeholder="e.g. Premium Account"/>
+          </div>
+          <div class="full">
+            <label class="admin-label">Description</label>
+            <textarea class="admin-input admin-textarea" id="aDesc" placeholder="Describe the giveaway and rules..."></textarea>
+          </div>
+          <div>
+            <label class="admin-label">Emoji / Icon</label>
+            <input type="text" class="admin-input" id="aEmoji" placeholder="🏆" maxlength="4"/>
+          </div>
+          <div>
+            <label class="admin-label">End Date & Time</label>
+            <input type="datetime-local" class="admin-input" id="aEndDate"/>
+          </div>
+          <div class="full">
+            <label class="admin-label">Discord Webhook URL <span style="color:var(--gray);font-size:0.65rem;">(for winner notifications)</span></label>
+            <!-- Webhook loaded from saved settings -->
+            <input type="text" class="admin-input" id="aWebhook" placeholder="https://discord.com/api/webhooks/..."/>
+          </div>
+        </div>
+        <div class="admin-actions">
+          <button class="admin-btn admin-btn-primary" onclick="publishGiveaway()">🚀 Publish Giveaway</button>
+          <button class="admin-btn admin-btn-danger" onclick="endGiveaway()">🛑 End Giveaway</button>
+        </div>
+      </div>
+
+      <!-- Entries list -->
+      <div>
+        <div class="admin-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>◆ Giveaway Entries (<span id="adminEntryCount">0</span>)</span>
+          <div style="display:flex;gap:8px;">
+            <button class="admin-btn admin-btn-gold" onclick="pickWinner()" style="padding:8px 16px;font-size:0.75rem;">🎲 Pick Winner</button>
+            <button class="admin-btn admin-btn-danger" onclick="clearEntries()" style="padding:8px 16px;font-size:0.75rem;">🗑 Clear All</button>
+          </div>
+        </div>
+        <div id="adminEntriesWrap">
+          <div class="admin-empty">No entries yet.</div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div style="margin-top:48px;border-top:1px solid var(--border);padding-top:36px;">
+        <div class="admin-section-title">◆ Settings</div>
+
+        <div style="margin-bottom:28px;">
+          <div class="admin-label" style="margin-bottom:10px;">🔔 Discord Webhook URL</div>
+          <div style="font-size:0.78rem;color:var(--gray);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px;line-height:1.6;">
+            Paste your Discord webhook here. Saved only in your browser — never visible in source code.
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <input type="text" class="admin-input" id="settingsWebhook" placeholder="https://discord.com/api/webhooks/..." style="flex:1;min-width:200px;"/>
+            <button class="admin-btn admin-btn-primary" onclick="saveWebhook()" style="white-space:nowrap;">💾 Save</button>
+            <button class="admin-btn" onclick="testWebhook()" style="background:var(--border);color:var(--white);white-space:nowrap;">📤 Test</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="admin-label" style="margin-bottom:10px;">🔒 Change Password</div>
+          <div style="font-size:0.78rem;color:var(--gray);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px;">
+            Password is stored as a SHA-256 hash — never as plain text.
+          </div>
+          <div class="admin-form-grid">
+            <div><label class="admin-label">Current Password</label><input type="password" class="admin-input" id="setPwCur" placeholder="Current password"/></div>
+            <div><label class="admin-label">New Password (8+ chars)</label><input type="password" class="admin-input" id="setPwNew" placeholder="New password"/></div>
+            <div><label class="admin-label">Confirm New Password</label><input type="password" class="admin-input" id="setPwConf" placeholder="Confirm new password"/></div>
+          </div>
+          <button class="admin-btn admin-btn-primary" onclick="changePassword()" style="margin-top:12px;">🔒 Update Password</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// SECURITY — password is SHA-256 hashed only
+// Default password: OBITO2026
+// Change it inside Admin → Settings after first login
+// ══════════════════════════════════════════
+const DEFAULT_HASH = '250bcc0d3bbbdb1a4e4543bd09a8d4d1db6e9fdf74a2e743e850ea5f07d6db4b';
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function getHash()   { return localStorage.getItem('ow_pw_hash') || DEFAULT_HASH; }
+function getAttempts() { return parseInt(localStorage.getItem('ow_attempts')||'0'); }
+function getLockout()  { try{return JSON.parse(localStorage.getItem('ow_lockout')||'null');}catch{return null;} }
+function bumpAttempts() {
+  const n = getAttempts() + 1;
+  localStorage.setItem('ow_attempts', n);
+  if (n >= 5) { localStorage.setItem('ow_lockout', JSON.stringify({until:Date.now()+300000})); localStorage.removeItem('ow_attempts'); }
+  return n;
+}
+function clearAttempts() { localStorage.removeItem('ow_attempts'); localStorage.removeItem('ow_lockout'); }
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let giveawayData = JSON.parse(localStorage.getItem('ow_giveaway') || 'null');
+let entries      = JSON.parse(localStorage.getItem('ow_entries')  || '[]');
+let countdownTimer = null;
+let adminAuthed = false;
+
+// ══════════════════════════════════════════
+// SPEED LINES
+// ══════════════════════════════════════════
+const speedBg = document.getElementById('speedBg');
+for (let i = 0; i < 12; i++) {
+  const line = document.createElement('div');
+  line.className = 'speed-line';
+  line.style.cssText = `
+    top: ${Math.random() * 100}%;
+    width: ${100 + Math.random() * 200}px;
+    animation-delay: ${Math.random() * 3}s;
+    animation-duration: ${2 + Math.random() * 3}s;
+    opacity: ${0.3 + Math.random() * 0.7};
+  `;
+  speedBg.appendChild(line);
+}
+
+// ══════════════════════════════════════════
+// SCROLL REVEAL
+// ══════════════════════════════════════════
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ══════════════════════════════════════════
+// HAMBURGER
+// ══════════════════════════════════════════
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  mobileMenu.classList.toggle('open');
+});
+function closeMenu() {
+  hamburger.classList.remove('open');
+  mobileMenu.classList.remove('open');
+}
+
+// ══════════════════════════════════════════
+// SHOP FILTER
+// ══════════════════════════════════════════
+function filterShop(cat, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.product-card').forEach(card => {
+    card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+  });
+}
+
+// ══════════════════════════════════════════
+// BUY MODAL
+// ══════════════════════════════════════════
+function openBuyModal(product) {
+  document.getElementById('modalProductName').textContent = `Ordering: ${product}`;
+  document.getElementById('buyModal').classList.add('open');
+}
+function closeBuyModal() {
+  document.getElementById('buyModal').classList.remove('open');
+}
+document.getElementById('buyModal').addEventListener('click', function(e) {
+  if (e.target === this) closeBuyModal();
+});
+
+// ══════════════════════════════════════════
+// DISCORD COPY
+// ══════════════════════════════════════════
+function copyDiscord(e) {
+  if (e) e.preventDefault();
+  navigator.clipboard.writeText('OBITOWRKS').then(() => showToast('Discord tag copied! 🎮'));
+  closeBuyModal();
+}
+
+// ══════════════════════════════════════════
+// CONTACT FORM
+// ══════════════════════════════════════════
+function submitForm() {
+  const name    = document.getElementById('formName').value.trim();
+  const service = document.getElementById('formService').value;
+  const msg     = document.getElementById('formMsg').value.trim();
+  if (!name || !service || !msg) { showToast('Fill in all fields first!'); return; }
+  showToast("Message received! We'll DM you soon 🔥");
+  document.getElementById('formName').value = '';
+  document.getElementById('formService').value = '';
+  document.getElementById('formMsg').value = '';
+}
+
+// ══════════════════════════════════════════
+// GIVEAWAY — PUBLIC
+// ══════════════════════════════════════════
+function renderGiveaway() {
+  const empty = document.getElementById('giveawayEmpty');
+  const card  = document.getElementById('giveawayCard');
+
+  if (!giveawayData || !giveawayData.active) {
+    empty.style.display = '';
+    card.classList.remove('active');
+    if (countdownTimer) clearInterval(countdownTimer);
+    return;
+  }
+
+  empty.style.display = 'none';
+  card.classList.add('active');
+
+  document.getElementById('giveawayTitle').innerHTML   = giveawayData.title.replace(' ', ' <span>') + '</span>';
+  document.getElementById('giveawayDesc').textContent  = giveawayData.desc;
+  document.getElementById('giveawayPrize').textContent = giveawayData.prize;
+  document.getElementById('giveawayEmoji').textContent = giveawayData.emoji || '🏆';
+  document.getElementById('entryCountDisplay').textContent = entries.length;
+
+  startCountdown(giveawayData.endDate);
+}
+
+function startCountdown(endDateStr) {
+  if (countdownTimer) clearInterval(countdownTimer);
+  function tick() {
+    const end  = new Date(endDateStr).getTime();
+    const now  = Date.now();
+    const diff = Math.max(0, end - now);
+    const d    = Math.floor(diff / 86400000);
+    const h    = Math.floor((diff % 86400000) / 3600000);
+    const m    = Math.floor((diff % 3600000) / 60000);
+    const s    = Math.floor((diff % 60000) / 1000);
+    document.getElementById('cdDays').textContent  = String(d).padStart(2,'0');
+    document.getElementById('cdHours').textContent = String(h).padStart(2,'0');
+    document.getElementById('cdMins').textContent  = String(m).padStart(2,'0');
+    document.getElementById('cdSecs').textContent  = String(s).padStart(2,'0');
+    if (diff === 0 && giveawayData) {
+      giveawayData.active = false;
+      localStorage.setItem('ow_giveaway', JSON.stringify(giveawayData));
+      renderGiveaway();
+    }
+  }
+  tick();
+  countdownTimer = setInterval(tick, 1000);
+}
+
+function submitGiveawayEntry() {
+  const ig     = document.getElementById('entryIg').value.trim();
+  const gameId = document.getElementById('entryGameId').value.trim();
+  const game   = document.getElementById('entryGame').value.trim();
+
+  if (!ig || !gameId) { showToast('Please fill in your IG username and game ID!'); return; }
+
+  // Dupe check by IG
+  if (entries.find(e => e.ig.toLowerCase() === ig.toLowerCase())) {
+    showToast('You already entered with that IG! 🚫'); return;
+  }
+
+  const entry = {
+    ig, gameId, game: game || 'CPM',
+    time: new Date().toLocaleString(),
+    id: Date.now()
+  };
+  entries.push(entry);
+  localStorage.setItem('ow_entries', JSON.stringify(entries));
+
+  document.getElementById('entryFormWrap').style.display = 'none';
+  document.getElementById('entrySuccess').classList.add('show');
+  document.getElementById('entryCountDisplay').textContent = entries.length;
+
+  showToast("You're in the draw! Good luck 🎁", true);
+  updateAdminEntryCount();
+}
+
+// ══════════════════════════════════════════
+// ADMIN — LOGIN
+// ══════════════════════════════════════════
+function openAdminLogin() {
+  document.getElementById('adminPanel').classList.add('open');
+  document.getElementById('adminLoginView').style.display = 'flex';
+  document.getElementById('adminMainView').style.display  = 'none';
+  document.getElementById('adminPwInput').value = '';
+  const lock = getLockout();
+  const mins = lock && Date.now() < lock.until ? Math.ceil((lock.until-Date.now())/60000) : 0;
+  document.getElementById('loginErr').textContent = mins ? `Too many attempts. Try again in ${mins} min.` : '';
+  setTimeout(()=>document.getElementById('adminPwInput').focus(),100);
+}
+
+async function checkAdminLogin() {
+  const lock = getLockout();
+  if (lock && Date.now() < lock.until) {
+    const mins = Math.ceil((lock.until-Date.now())/60000);
+    document.getElementById('loginErr').textContent = `Too many attempts. Try again in ${mins} min.`;
+    return;
+  }
+  const pw = document.getElementById('adminPwInput').value;
+  const hash = await sha256(pw);
+  if (hash === getHash()) {
+    clearAttempts();
+    adminAuthed = true;
+    const tok = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
+    sessionStorage.setItem('ow_tok', tok);
+    window._atok = tok;
+    document.getElementById('adminLoginView').style.display = 'none';
+    document.getElementById('adminMainView').style.display  = 'block';
+    loadAdminPanel();
+  } else {
+    const n = bumpAttempts();
+    const left = Math.max(0, 5-n);
+    document.getElementById('loginErr').textContent = left > 0 ? `Wrong password. ${left} attempt${left===1?'':'s'} left.` : 'Locked out for 5 minutes.';
+    document.getElementById('adminPwInput').value = '';
+    document.getElementById('adminPwInput').style.borderColor = 'var(--red)';
+    setTimeout(()=>document.getElementById('adminPwInput').style.borderColor='',1000);
+  }
+}
+
+function adminLogout() {
+  adminAuthed = false;
+  sessionStorage.removeItem('ow_tok');
+  window._atok = null;
+  document.getElementById('adminLoginView').style.display = 'flex';
+  document.getElementById('adminMainView').style.display  = 'none';
+}
+
+function closeAdmin() {
+  document.getElementById('adminPanel').classList.remove('open');
+}
+
+// ══════════════════════════════════════════
+// ADMIN — PANEL LOGIC
+// ══════════════════════════════════════════
+function loadAdminPanel() {
+  if (giveawayData) {
+    document.getElementById('aTitle').value   = giveawayData.title   || '';
+    document.getElementById('aPrize').value   = giveawayData.prize   || '';
+    document.getElementById('aDesc').value    = giveawayData.desc    || '';
+    document.getElementById('aEmoji').value   = giveawayData.emoji   || '🏆';
+    document.getElementById('aEndDate').value = giveawayData.endDate || '';
+  }
+  // Load saved webhook from localStorage
+  const savedWh = localStorage.getItem('ow_webhook') || '';
+  document.getElementById('aWebhook').value        = savedWh;
+  document.getElementById('settingsWebhook').value = savedWh;
+  updateAdminStatus();
+  renderAdminEntries();
+}
+
+function updateAdminStatus() {
+  const dot  = document.getElementById('adminStatusDot');
+  const text = document.getElementById('adminStatusText');
+  if (giveawayData && giveawayData.active) {
+    dot.classList.add('green');
+    text.textContent = `✅ Active giveaway: "${giveawayData.title}" — ${entries.length} entries`;
+  } else {
+    dot.classList.remove('green');
+    text.textContent = 'No active giveaway.';
+  }
+}
+
+function updateAdminEntryCount() {
+  document.getElementById('adminEntryCount').textContent = entries.length;
+}
+
+function publishGiveaway() {
+  const title   = document.getElementById('aTitle').value.trim();
+  const prize   = document.getElementById('aPrize').value.trim();
+  const desc    = document.getElementById('aDesc').value.trim();
+  const emoji   = document.getElementById('aEmoji').value.trim() || '🏆';
+  const endDate = document.getElementById('aEndDate').value;
+  const webhook = document.getElementById('aWebhook').value.trim();
+
+  if (!title || !prize || !endDate) {
+    showToast('Fill in Title, Prize and End Date!'); return;
+  }
+  if (new Date(endDate) <= new Date()) {
+    showToast('End date must be in the future!'); return;
+  }
+
+  giveawayData = { title, prize, desc, emoji, endDate, webhook, active: true };
+  localStorage.setItem('ow_giveaway', JSON.stringify(giveawayData));
+
+  // Reset entries for fresh giveaway
+  entries = [];
+  localStorage.setItem('ow_entries', JSON.stringify(entries));
+  document.getElementById('entryFormWrap').style.display = '';
+  document.getElementById('entrySuccess').classList.remove('show');
+
+  renderGiveaway();
+  updateAdminStatus();
+  renderAdminEntries();
+  showToast('Giveaway published! 🚀', true);
+}
+
+function endGiveaway() {
+  if (!giveawayData) { showToast('No active giveaway.'); return; }
+  if (!confirm('End the giveaway now?')) return;
+  giveawayData.active = false;
+  localStorage.setItem('ow_giveaway', JSON.stringify(giveawayData));
+  renderGiveaway();
+  updateAdminStatus();
+  showToast('Giveaway ended.');
+}
+
+function clearEntries() {
+  if (!confirm('Delete ALL entries? This cannot be undone.')) return;
+  entries = [];
+  localStorage.setItem('ow_entries', JSON.stringify(entries));
+  renderAdminEntries();
+  updateAdminStatus();
+  document.getElementById('entryCountDisplay').textContent = 0;
+  showToast('Entries cleared.');
+}
+
+function renderAdminEntries() {
+  updateAdminEntryCount();
+  const wrap = document.getElementById('adminEntriesWrap');
+  if (entries.length === 0) {
+    wrap.innerHTML = '<div class="admin-empty">No entries yet.</div>';
+    return;
+  }
+  let rows = entries.map((e, i) => `
+    <tr class="${e.winner ? 'winner-row' : ''}">
+      <td>${i + 1}</td>
+      <td>${escHtml(e.ig)}</td>
+      <td>${escHtml(e.gameId)}</td>
+      <td>${escHtml(e.game)}</td>
+      <td>${e.time}</td>
+      <td>${e.winner ? '🏆 WINNER' : ''}</td>
+    </tr>
+  `).join('');
+  wrap.innerHTML = `
+    <table class="admin-entries-table">
+      <thead>
+        <tr>
+          <th>#</th><th>Instagram</th><th>Game ID</th><th>Game</th><th>Time</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ══════════════════════════════════════════
+// PICK WINNER + DISCORD WEBHOOK
+// ══════════════════════════════════════════
+async function pickWinner() {
+  if (entries.length === 0) { showToast('No entries to pick from!'); return; }
+  if (!confirm(`Pick a random winner from ${entries.length} entries?`)) return;
+
+  // Clear previous winners
+  entries.forEach(e => e.winner = false);
+
+  const idx    = Math.floor(Math.random() * entries.length);
+  const winner = entries[idx];
+  winner.winner = true;
+  localStorage.setItem('ow_entries', JSON.stringify(entries));
+
+  renderAdminEntries();
+  showToast(`🏆 Winner: ${winner.ig} (${winner.gameId})`, true);
+
+  // Send to Discord webhook
+  const webhook = giveawayData && giveawayData.webhook ? giveawayData.webhook : document.getElementById('aWebhook').value.trim();
+  if (webhook && webhook.startsWith('https://discord.com/api/webhooks/')) {
+    await sendWinnerToDiscord(webhook, winner);
+  } else {
+    showToast('⚠️ No webhook set — winner not sent to Discord. Add your webhook in the panel.');
+  }
+}
+
+async function sendWinnerToDiscord(webhookUrl, winner) {
+  const payload = {
+    username: 'OBITOWRKS Giveaway Bot',
+    avatar_url: 'https://i.imgur.com/4M34hi2.png',
+    embeds: [{
+      title: '🏆 GIVEAWAY WINNER SELECTED',
+      color: 0xF0C040,
+      fields: [
+        { name: '🎁 Giveaway', value: giveawayData ? giveawayData.title : 'Unknown', inline: false },
+        { name: '📸 Instagram', value: `@${winner.ig}`, inline: true },
+        { name: '🎮 In-Game ID', value: winner.gameId, inline: true },
+        { name: '🕹 Game/Platform', value: winner.game || 'CPM', inline: true },
+        { name: '⏰ Entered At', value: winner.time, inline: false }
+      ],
+      footer: { text: 'OBITOWRKS · DM the winner to deliver prize' },
+      timestamp: new Date().toISOString()
+    }]
+  };
+
+  try {
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      showToast('✅ Winner sent to your Discord!', true);
+    } else {
+      showToast('⚠️ Webhook failed — check the URL.');
+    }
+  } catch (err) {
+    showToast('⚠️ Webhook error. Check your URL.');
+  }
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+function showToast(msg, gold = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  if (gold) t.classList.add('gold'); else t.classList.remove('gold');
+  setTimeout(() => { t.classList.remove('show'); t.classList.remove('gold'); }, 3500);
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+
+// ── SECRET ADMIN TRIGGER ──
+// Type "OBITOWRKS" anywhere on the page (no visible hint)
+(function(){
+  const SECRET = 'OBITOWRKS';
+  let buf='', t=null;
+  document.addEventListener('keydown', function(e){
+    const tag = document.activeElement.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT') return;
+    buf += e.key.toUpperCase();
+    if(buf.length > SECRET.length) buf = buf.slice(-SECRET.length);
+    clearTimeout(t);
+    t = setTimeout(()=>{buf='';}, 2000);
+    if(buf===SECRET){ buf=''; openAdminLogin(); }
+  });
+})();
+
+// ── Webhook save + test ──
+function saveWebhook() {
+  const url = document.getElementById('settingsWebhook').value.trim();
+  if(url && !url.startsWith('https://discord.com/api/webhooks/')){ showToast('⚠️ Invalid webhook URL'); return; }
+  localStorage.setItem('ow_webhook', url);
+  document.getElementById('aWebhook').value = url;
+  showToast('✅ Webhook saved securely!', true);
+}
+async function testWebhook() {
+  const url = localStorage.getItem('ow_webhook')||'';
+  if(!url){ showToast('⚠️ No webhook saved yet'); return; }
+  try {
+    const res = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username:'OBITOWRKS Admin',embeds:[{title:'✅ Webhook Test',description:'Your Discord webhook is connected!',color:0x00e676}]})});
+    showToast(res.ok?'✅ Test sent — check Discord!':'⚠️ Webhook error — check the URL', res.ok);
+  } catch(e){ showToast('⚠️ Could not reach Discord'); }
+}
+
+// ── Password change ──
+async function changePassword() {
+  const cur  = document.getElementById('setPwCur').value;
+  const nw   = document.getElementById('setPwNew').value;
+  const conf = document.getElementById('setPwConf').value;
+  if(!cur||!nw||!conf){ showToast('Fill in all password fields!'); return; }
+  if(nw.length < 8)   { showToast('New password must be 8+ characters!'); return; }
+  if(nw !== conf)     { showToast('Passwords do not match!'); return; }
+  if(await sha256(cur) !== getHash()){ showToast('⚠️ Current password is wrong!'); return; }
+  localStorage.setItem('ow_pw_hash', await sha256(nw));
+  ['setPwCur','setPwNew','setPwConf'].forEach(id=>document.getElementById(id).value='');
+  showToast('🔒 Password updated!', true);
+}
+
+renderGiveaway();
+</script>
+</body>
+</html>
